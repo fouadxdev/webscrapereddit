@@ -1,0 +1,45 @@
+[
+  {
+    "subreddit_name": "coding",
+    "url": "https://www.reddit.com/r/coding",
+    "title": "Reddit - The heart of the internet",
+    "scraped_at": "2025-10-30 11:50:15",
+    "topics": [
+      {
+        "title": "r/coding",
+        "type": "topic"
+      },
+      {
+        "title": "r/coding Rules",
+        "type": "topic"
+      }
+    ],
+    "discussions": [
+      {
+        "title": "No \"I made a ____\" posts. No AI slop posts. No advertising. No discord links. No surveys.votes \u2022comm...",
+        "url": "/r/coding/comments/1keo68j/no_i_made_a_posts_no_ai_slop_posts_no_advertising/",
+        "type": "discussion"
+      },
+      {
+        "title": "How I Learned System Design",
+        "url": "/r/coding/comments/1ojzazj/how_i_learned_system_design/",
+        "type": "discussion"
+      },
+      {
+        "title": "Remember my coding game for learning Python? After more than three years, I finally released version...",
+        "url": "/r/coding/comments/1o3v9w4/remember_my_coding_game_for_learning_python_after/",
+        "type": "discussion"
+      },
+      {
+        "title": "Looking for alpha testers: A new fast file explorer focused specifically around professional work. V...",
+        "url": "/r/coding/comments/1ojw0z2/looking_for_alpha_testers_a_new_fast_file/",
+        "type": "discussion"
+      },
+      {
+        "title": "see list of known programming language subreddits",
+        "url": "http://www.reddit.com/r/programming/comments/a6qgz/proggit_im_trying_to_compile_all_the_known/",
+        "type": "discussion"
+      }
+    ]
+  }
+]
