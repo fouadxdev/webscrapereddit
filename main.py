@@ -4,135 +4,130 @@ import csv
 import time
 from bs4 import BeautifulSoup
 
-# Function main scraper to get content from reddit
 def scrape_reddit() -> list[dict]:
     subreddits = [
-        'https://www.reddit.com/r/cscareerquestions',
-        'https://www.reddit.com/r/programming',
-        'https://www.reddit.com/r/coding'
+        'https://www.reddit.com/r/ArtificialInteligence',
+        'https://www.reddit.com/r/SoftwareEngineering',
+        'https://www.reddit.com/r/Python/top'
     ]
 
     all_data = []
+    
     for url in subreddits:
+        # ✅ Everything below needs to be indented (inside the loop)
         headers = {
            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
 
-    subreddit_name = url.split('/')[-1]
-    print(f'Scraping for {subreddit_name}')
-    
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
+        subreddit_name = url.split('/')[-1]
+        print(f'Scraping for {subreddit_name}')
+        
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
 
-        soup = BeautifulSoup(response.content, 'html.parser')
+            soup = BeautifulSoup(response.content, 'html.parser')
 
+            subreddit_data = {
+                'subreddit_name': subreddit_name,
+                'url': url,
+                'title': soup.title.string if soup.title else 'No title', 
+                'scraped_at': time.strftime('%Y-%m-%d %H:%M:%S'),
+            }
 
-        subreddit_data = {
-            'subreddit_name' :subreddit_name ,
-            'url': url,
-            'title': soup.title.string if soup.title else 'No title', 
-            'scraped_at': time.strftime('%Y-%m-%d %H:%M:%S'),
+            topics = []
+            for heading in soup.find_all(['h1', 'h2', 'h3', 'h4']):
+                text = heading.get_text(strip=True)
 
-        }
+                if text and len(text) > 3:
+                    if any(keyword in text.lower() for keyword in ['jobs', 'interview', 'ai', 'programming', 'computer science', 'data', 'coding']):
+                        topics.append({
+                            'title': text,
+                            'type': 'topic'
+                        })
 
-        topics = []
-        for heading in soup.find_all(['h1', 'h2', 'h3', 'h4']):
-            text = heading.get_text(strip=True)
+            discussions = []
+            seen_urls = set()
 
-            if text and len(text) > 3:
-                if any(keyword in text.lower() for keyword in ['jobs', 'interview', 'AI', 'Programming', 'Computer Science', 'Data', 'coding']):
-                    topics.append({
-                        'title': text,
-                        'type': 'topic'
+            for link in soup.find_all('a', href=True):
+                text = link.get_text(strip=True)
+                href = link['href']
+
+                if text and len(text) > 1 and '/comments/' in href and href not in seen_urls:
+                    seen_urls.add(href)
+
+                    discussions.append({
+                        'title': text[:100] + '...' if len(text) > 100 else text,
+                        'url': href,
+                        'type': 'discussion'
                     })
 
-        discussions = []
-        seen_urls = set()
+            subreddit_data['topics'] = topics
+            subreddit_data['discussions'] = discussions
 
-        for link in soup.find_all('a', href=True):
-            text = link.get_text(strip=True)
-            href = link['href']
+            all_data.append(subreddit_data)
+            time.sleep(2)
 
-            if text and len(text) > 1 and '/comments/' in href and href not in seen_urls:
-                seen_urls.add(href)
-
-                discussions.append({
-                    'title': text[:100] + '...' if len(text) > 100 else text,
-                    'url':href,
-                    'type': 'discussion'
-                })
-
-        subreddit_data['topics'] = topics
-        subreddit_data['discussions'] = discussions
-
-        all_data.append(subreddit_data)
-        time.sleep(2)
-
-    except Exception as e:
-        print(f'Error: {e}')
-
+        except Exception as e:
+            print(f'Error scraping {url}: {e}')
+    
     return all_data
 
-#Save data to Json and Csv
-#Json
+
 def save_scraped_data(data, filename_json='reddit_topics.json', filename_csv='reddit_topics.csv'):
     if not data:
-        print(f'No Data')
+        print('No Data')
         return
     
+    # Save JSON
     try:
         with open(filename_json, 'w', encoding='utf-8') as file:
-            json.dump(data, file, indent=2, ensure_ascii=True)
+            json.dump(data, file, indent=2, ensure_ascii=False)
             print(f'Topics saved: {filename_json}')
     except Exception as e:
-        print("ERROR:", e)
+        print("JSON ERROR:", e)
 
-
-#CSv
-
+    # Save CSV
     try:
-        with open(filename_csv, 'w', encoding='utf-8') as file:
+        with open(filename_csv, 'w', encoding='utf-8', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['Subreddit', 'Type', 'Title', 'URL', 'Scraped_at'])
+            
             for subreddit_data in data:
                 subreddit = subreddit_data['subreddit_name']
                 scraped_at = subreddit_data['scraped_at']
 
                 for topic in subreddit_data.get('topics', []):
-                    writer.writerow([subreddit, topic['type'], topic['title'],'', scraped_at])
+                    writer.writerow([subreddit, topic['type'], topic['title'], '', scraped_at])
 
                 for discussion in subreddit_data.get('discussions', []):
                     writer.writerow([subreddit, discussion['type'], discussion['title'], discussion['url'], scraped_at])
 
-            print(f'All topics Save to Respective Files')
+            print('All topics saved to CSV')
     except Exception as e: 
-        print("ERROR:", e)
+        print("CSV ERROR:", e)
 
-            
-            
-            
-    #Execution
+
 def main() -> None:
     data = scrape_reddit()
 
     if data:
-        print(f'Processing data....')
+        print('Processing data....')
         total_topics = 0
         total_discussions = 0
 
         for subreddit_data in data:
-            topics_count = len(subreddit_data.get('topics' , []))
-            discussions_count = len(subreddit_data.get('discussions' , []))
-
+            topics_count = len(subreddit_data.get('topics', []))
+            discussions_count = len(subreddit_data.get('discussions', []))
 
             total_topics += topics_count
             total_discussions += discussions_count
 
-        print(f'\nTotal {total_topics}: Topics, {discussions_count}L Discussions')
+        print(f'\nTotal Topics: {total_topics}, Total Discussions: {total_discussions}')
         save_scraped_data(data)
     else:
         print('No Data Returned')
+
 
 if __name__ == "__main__":
     main()
