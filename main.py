@@ -40,7 +40,7 @@ def scrape_reddit() -> list[dict]:
                 text = heading.get_text(strip=True)
 
                 if text and len(text) > 3:
-                    if any(keyword in text.lower() for keyword in ['jobs', 'interview', 'ai', 'programming', 'computer science', 'data', 'coding']):
+                    if any(keyword in text.lower() for keyword in ['jobs', 'python', 'Ai',  'programming', 'computer science', 'data', 'coding']):
                         topics.append({
                             'title': text,
                             'type': 'topic'
