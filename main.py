@@ -5,6 +5,7 @@ import time
 from bs4 import BeautifulSoup
 
 def scrape_reddit() -> list[dict]:
+    # Copy and paste any Subreddit URL link 
     subreddits = [
         'https://www.reddit.com/r/ArtificialInteligence',
         'https://www.reddit.com/r/SoftwareEngineering',
@@ -14,7 +15,7 @@ def scrape_reddit() -> list[dict]:
     all_data = []
     
     for url in subreddits:
-        # ✅ Everything below needs to be indented (inside the loop)
+        
         headers = {
            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
